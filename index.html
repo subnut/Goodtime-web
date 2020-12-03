@@ -1,0 +1,138 @@
+<html>
+<head>
+<link rel="preconnect" href="https://fonts.gstatic.com">
+<link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@100&display=swap" rel="stylesheet">
+<title>
+    GoodTime Web
+</title>
+<style type="text/css">
+  @font-face {
+    font-family: TimerFont;
+    src:url("/RobotoMono-VariableFont_wght.ttf");
+  }
+
+  body, html {
+    height: 100%;
+    width: 100%;
+    margin: 0;
+    background-color: #000;
+  }
+  .container {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .timer {
+    color: #fff;
+    text-align: center;
+    font-family: TimerFont, 'Roboto Mono', monospace;
+    font-weight: 100;
+    font-size: 16em;
+  }
+</style>
+<script type="text/javascript">
+
+function secondsToTime(secs) {
+  var hours = Math.floor(secs / (60 * 60));
+  hours = hours < 10 ? '0' + hours : hours;
+  var divisor_for_minutes = secs % (60 * 60);
+  var minutes = Math.floor(divisor_for_minutes / 60);
+  // minutes = minutes < 10 ? '0' + minutes : minutes;
+  var divisor_for_seconds = divisor_for_minutes % 60;
+  var seconds = Math.ceil(divisor_for_seconds);
+  seconds = seconds < 10 ? '0' + seconds : seconds;
+  return minutes + ':' + seconds;
+}
+
+var duration_work = 25;
+var duration_break = 5;
+var session = 0;
+var end_milliseconds = 0;
+var running;
+
+function update_timer() {
+  var time_now = new Date().getTime()
+  if (end_milliseconds == 0) {
+    window.end_milliseconds = time_now + target_milliseconds + 1000;
+  }
+  var now_milliseconds = time_now
+  var diff_milliseconds = end_milliseconds - now_milliseconds;
+  var diff_seconds = Math.floor(diff_milliseconds / 1000);
+  if (diff_seconds > 0) {
+    diff_seconds = diff_seconds < window.target_seconds ? diff_seconds : window.target_seconds;
+    var new_time_text = secondsToTime(diff_seconds);
+    document.getElementById("time").innerHTML = new_time_text;
+    return 1000 - new Date().getMilliseconds()
+  } else {
+    document.getElementById("time").innerHTML = "00:00";
+    window.running = false;
+    window.session++
+    window.session %= 2
+    update_target()
+    return 1000
+  }
+}
+
+function update_target() {
+  if (window.session) {
+    window.target_minutes = window.duration_break;
+  } else {
+    window.target_minutes = window.duration_work;
+  }
+  window.target_seconds = window.target_minutes * 60;
+  window.target_milliseconds = window.target_seconds * 1000;
+}
+
+function timer_start() {
+  window.running = true;
+  main_loop()
+}
+function timer_pause() {
+  if (window.running) {
+    window.running = false;
+    window.target_milliseconds = window.end_milliseconds - new Date().getTime();
+    window.end_milliseconds = 0
+  }
+}
+function timer_reset() {
+  window.running = false;
+  update_target()
+  document.getElementById("time").innerHTML = secondsToTime(window.target_seconds)
+  window.end_milliseconds = 0
+}
+function timer_skip() {
+  window.session++
+  window.session %= 2
+  timer_reset()
+}
+
+function main_loop() {
+  if (window.running) {
+    setTimeout(main_loop, update_timer());
+  }
+}
+
+function init() {
+  update_target()
+  timer_start()
+}
+
+window.onload = init;
+</script>
+
+</head>
+<body>
+  <div class="container">
+    <div class="timer">
+        <span id="time">25:00</span>
+    </div>
+  </div>
+</body>
+</html>
+
+<!--
+  vim: et ts=2
+-->
