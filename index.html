@@ -142,6 +142,7 @@ var session = 0;
 var end_milliseconds = 0;
 var running;
 var mad_keypress = 0;
+var mad_threshold = 2;
 
 function update_timer() {
   var time_now = new Date().getTime()
@@ -249,11 +250,13 @@ function keydown_handler(event) {
 function keypress_handler(event) {
   if (["?"," ", "Enter"].includes(event.key)) { window.mad_keypress = 0 }
   else {
-    if (window.mad_keypress) {
-      window.onkeypress = null; // i.e. mad help is only shown once
-      user_needs_help();
-    };
     window.mad_keypress++;
+    window.mad_keypress %= mad_threshold;
+    if (!window.mad_keypress) {
+      user_needs_help();
+      window.mad_keypress = 0;
+      window.mad_threshold++;
+    };
   };
 };
 
