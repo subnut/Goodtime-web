@@ -8,7 +8,7 @@
 <style type="text/css">
   @font-face {
     font-family: TimerFont;
-    src:url("/RobotoMono-VariableFont_wght.ttf");
+    src:url("/RobotoMono-Thin.ttf");
   }
 
   body, html {
@@ -34,6 +34,17 @@
   }
 </style>
 <script type="text/javascript">
+const helpText = `For help press '?' key or F1
+
+ Start/Pause	Primary (left) click		<Space> key
+ Reset		Secondary (right) click	<Backspace> key
+ Skip		Secondary (right) click	<Escape> key
+`
+
+function help() {
+  alert(helpText);
+}
+
 
 function secondsToTime(secs) {
   var hours = Math.floor(secs / (60 * 60));
@@ -163,6 +174,10 @@ function keypress_handler(event) {
     case "Escape":
       timer_skip();
       break;
+    case "?":
+    case "F1":
+      help();
+      break
   }
 }
 
