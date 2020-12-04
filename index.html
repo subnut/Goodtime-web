@@ -47,8 +47,19 @@ function secondsToTime(secs) {
   return minutes + ':' + seconds;
 }
 
-var duration_work = 25;
-var duration_break = 5;
+// Parse args
+for (const entry of new URLSearchParams(window.location.search).entries()){
+ console.log(`${entry[0]}: ${entry[1]}`);
+ eval(`window.${entry[0]} = ${entry[1]}`);
+}
+
+// set defaults if unset
+var duration_work = (typeof(window.work) == "number") ? window.work : 25;
+var duration_break = (typeof(window.break) == "number") ? window.break : 5;
+var auto_start = (typeof(window.autostart) == "boolean") ? window.autostart : false;
+var auto_break = (typeof(window.autobreak) == "boolean") ? window.autobreak : auto_start;
+
+// working variables
 var session = 0;
 var end_milliseconds = 0;
 var running;
@@ -58,7 +69,7 @@ function update_timer() {
   if (end_milliseconds == 0) {
     window.end_milliseconds = time_now + target_milliseconds;
   }
-  var now_milliseconds = time_now
+  var now_milliseconds = new Date().getTime()
   var diff_milliseconds = end_milliseconds - now_milliseconds;
   var diff_seconds = Math.floor(diff_milliseconds / 1000);
   if (diff_seconds > 0) {
@@ -107,7 +118,10 @@ function timer_reset() {
 function timer_skip() {
   window.session++;
   window.session %= 2;
+  var wasRunning = window.running
   timer_reset();
+  if (wasRunning && (window.session && window.auto_break || window.auto_start))
+      timer_start()
 }
 
 function main_loop() {
@@ -118,18 +132,20 @@ function main_loop() {
 
 function init() {
   update_target();
-  // timer_start();
+  if (window.auto_start) {
+    timer_start();
+  }
 }
 
 function mouse_handler(event) {
   switch (event.button) {
-    case 0:
+    case 0: // primary (left for lefties) button
       timer_toggle_pause();
       break;
-    case 1:
+    case 2: // secondary (right for lefties) button
       timer_reset();
       break;
-    case 2:
+    case 1: // auxillary (middle) button
       timer_skip();
       break;
   }
