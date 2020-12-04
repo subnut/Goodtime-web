@@ -33,6 +33,10 @@
     font-weight: 100;
     font-size: 16em;
   }
+
+  .breakmode {
+    color: #fff8;
+  }
 </style>
 <script type="text/javascript">
 const helpText = `For help press '?' key or F1
@@ -41,7 +45,7 @@ Start/Pause	Primary (left) click		<Space> key
 Reset		Secondary (right) click	<Backspace> key
 Skip		Secondary (right) click	<Escape> key
 
-Press Enter to toggle Fullscreen mode
+Press F11 to toggle Fullscreen mode
 
 
 Configuration
@@ -73,6 +77,11 @@ Keep in mind that the value of &autobreak is set to that of &autostart by defaul
  	&autobreak=false
 
 NOTE: The case of "true" and "false" is important. It should match exactly. Anything else is ignored.
+
+Help on two Enters
+------------------
+By default, help is shown when Enter is pressed twice. To disable this, add the following to the URL -
+	&enterhelp=false
 `
 
 function help() {
@@ -104,12 +113,14 @@ var duration_work = (typeof(window.work) == "number") ? window.work : 25;
 var duration_break = (typeof(window.break) == "number") ? window.break : 5;
 var auto_start = (typeof(window.autostart) == "boolean") ? window.autostart : false;
 var auto_break = (typeof(window.autobreak) == "boolean") ? window.autobreak : auto_start;
+var enter_help = (typeof(window.enterhelp) == "boolean") ? window.enterhelp : true;
 
 // working variables
 var session = 0;
 var end_milliseconds = 0;
 var running;
 var mad_keypress = 0;
+var enter_pressed_once = 0;
 
 function update_timer() {
   var time_now = new Date().getTime()
@@ -125,12 +136,19 @@ function update_timer() {
     return 1000 - new Date().getMilliseconds();
   } else {
     document.getElementById("time").innerHTML = "00:00";
-    window.running = false;
-    window.session++;
     window.session %= 2
     update_target_variables();
+    update_timer_color();
     return 1000;
   }
+}
+
+function update_timer_color() {
+  if (window.session) {
+    document.getElementById("timer").classList.add("breakmode");
+  } else {
+    document.getElementById("timer").classList.remove("breakmode");
+  };
 }
 
 function update_target_variables() {
@@ -167,6 +185,7 @@ function timer_skip() {
   window.session %= 2;
   var wasRunning = window.running
   timer_reset();
+  update_timer_color();
   if (wasRunning && (window.session && window.auto_break || window.auto_start))
       timer_start()
 }
@@ -179,10 +198,10 @@ function main_loop() {
 
 function init() {
   update_target_variables();
-  document.getElementById("time").innerHTML = secondsToTime(target_seconds)
+  document.getElementById("time").innerHTML = secondsToTime(target_seconds);
   if (window.auto_start) {
     timer_start();
-  }
+  };
 }
 
 function mouse_handler(event) {
@@ -210,10 +229,15 @@ function keydown_handler(event) {
     case "Escape":
       timer_skip();
       break;
+    // case "Enter":
+    //   if (document.fullscreenElement != null) { document.exitFullscreen();}
+    //   else { if (document.fullscreenEnabled) { document.documentElement.requestFullscreen();}; };
+    //   break;
     case "Enter":
-      if (document.fullscreenElement != null) { document.exitFullscreen();}
-      else { if (document.fullscreenEnabled) { document.documentElement.requestFullscreen();}; };
-      break;
+      window.enter_pressed_once++;
+      window.enter_pressed_once %= 2;
+      if (window.enter_pressed_once) { break; };
+      if (!enter_help) { break; }
     case "?":
     case "F1":
       help();
@@ -222,7 +246,8 @@ function keydown_handler(event) {
 }
 
 function keypress_handler(event) {
-  if (["?"," ","Enter"].includes(event.key)) { window.mad_keypress = 0 }
+  if (event.key == "Enter") { return; }; // handled by enter_pressed_once
+  if (["?"," "].includes(event.key)) { window.mad_keypress = 0 }
   else {
     if (window.mad_keypress) {
       window.onkeypress = null; // i.e. mad help is only shown once
@@ -242,7 +267,7 @@ document.oncontextmenu = function() {return false;} // disable right click conte
 </head>
 <body>
   <div class="container">
-    <div class="timer">
+    <div class="timer" id="timer">
         <span id="time"></span>
     </div>
   </div>
