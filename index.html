@@ -11,7 +11,6 @@
     src:url("/RobotoMono-Thin.ttf");
   }
 
-
   body, html {
     height: 100%;
     width: 100%;
@@ -38,9 +37,42 @@
 <script type="text/javascript">
 const helpText = `For help press '?' key or F1
 
- Start/Pause	Primary (left) click		<Space> key
- Reset		Secondary (right) click	<Backspace> key
- Skip		Secondary (right) click	<Escape> key
+Start/Pause	Primary (left) click		<Space> key
+Reset		Secondary (right) click	<Backspace> key
+Skip		Secondary (right) click	<Escape> key
+
+Press Enter to toggle Fullscreen mode
+
+
+Configuration
+=============
+Before continuing, add a '?' at the end of the URL, so that it now looks like this -
+	${document.location.origin}${document.location.pathname}?
+
+Work duration
+-------------
+Add the following text at the end of the URL and replace 25 with your choice of minutes -
+	&work=25
+
+Break duration
+-------------
+Add the following text at the end of the URL and replace 5 with your choice of minutes -
+	&work=5
+
+Auto-start
+----------
+If you want the work timer to start automatically, then add the following text -
+	&autostart=true
+
+Auto-break
+----------
+If you want the break timer to start automatically, then add the following text -
+	&autobreak=true
+
+Keep in mind that the value of &autobreak is set to that of &autostart by default. So, if you have set &autostart=true, it automatically implies &autobreak=true. In that case, if you want to disable auto-break, you need the set the following -
+ 	&autobreak=false
+
+NOTE: The case of "true" and "false" is important. It should match exactly. Anything else is ignored.
 `
 
 function help() {
@@ -77,6 +109,7 @@ var auto_break = (typeof(window.autobreak) == "boolean") ? window.autobreak : au
 var session = 0;
 var end_milliseconds = 0;
 var running;
+var mad_keypress = 0;
 
 function update_timer() {
   var time_now = new Date().getTime()
@@ -95,12 +128,12 @@ function update_timer() {
     window.running = false;
     window.session++;
     window.session %= 2
-    update_target();
+    update_target_variables();
     return 1000;
   }
 }
 
-function update_target() {
+function update_target_variables() {
   if (window.session) {
     window.target_minutes = window.duration_break;
   } else {
@@ -125,7 +158,7 @@ function timer_toggle_pause() {
 }
 function timer_reset() {
   window.running = false;
-  update_target();
+  update_target_variables();
   document.getElementById("time").innerHTML = secondsToTime(window.target_seconds);
   window.end_milliseconds = 0;
 }
@@ -145,7 +178,8 @@ function main_loop() {
 }
 
 function init() {
-  update_target();
+  update_target_variables();
+  document.getElementById("time").innerHTML = secondsToTime(target_seconds)
   if (window.auto_start) {
     timer_start();
   }
@@ -165,7 +199,7 @@ function mouse_handler(event) {
   }
 }
 
-function keypress_handler(event) {
+function keydown_handler(event) {
   switch (event.key) {
     case " ":
       timer_toggle_pause();
@@ -176,6 +210,10 @@ function keypress_handler(event) {
     case "Escape":
       timer_skip();
       break;
+    case "Enter":
+      if (document.fullscreenElement != null) { document.exitFullscreen();}
+      else { if (document.fullscreenEnabled) { document.documentElement.requestFullscreen();}; };
+      break;
     case "?":
     case "F1":
       help();
@@ -183,10 +221,21 @@ function keypress_handler(event) {
   }
 }
 
+function keypress_handler(event) {
+  if (["?"," ","Enter"].includes(event.key)) { window.mad_keypress = 0 }
+  else {
+    if (window.mad_keypress) {
+      window.onkeypress = null; // i.e. mad help is only shown once
+      help();
+    };
+    window.mad_keypress++;
+  };
+};
 
 window.onload = init;
 window.onmousedown = mouse_handler;
-window.onkeydown = keypress_handler;
+window.onkeydown = keydown_handler;
+window.onkeypress = keypress_handler;
 document.oncontextmenu = function() {return false;} // disable right click context menu
 </script>
 
@@ -194,7 +243,7 @@ document.oncontextmenu = function() {return false;} // disable right click conte
 <body>
   <div class="container">
     <div class="timer">
-        <span id="time">25:00</span>
+        <span id="time"></span>
     </div>
   </div>
 </body>
