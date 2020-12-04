@@ -103,9 +103,9 @@ Keep in mind that the value of &autobreak is set to that of &autostart by defaul
 
 NOTE: The case of "true" and "false" is important. It should match exactly. Anything else is ignored.
 
-Help on two Enters
+Help on Enter
 ------------------
-By default, help to toggle help is shown when Enter is pressed twice. To disable this, add the following to the URL -
+By default, help is toggled when Enter is pressed. To disable this, add the following to the URL -
   &enterhelp=false
 `
 function secondsToTime(secs) {
@@ -139,7 +139,6 @@ var session = 0;
 var end_milliseconds = 0;
 var running;
 var mad_keypress = 0;
-var enter_pressed_once = 0;
 
 function update_timer() {
   var time_now = new Date().getTime()
@@ -235,12 +234,7 @@ function keydown_handler(event) {
       timer_skip();
       break;
     case "Enter":
-      window.enter_pressed_once++;
-      window.enter_pressed_once %= 2;
-      if (window.enter_pressed_once) { break; };
-      if (!enter_help) { break; }
-      user_needs_help();
-      break;
+      if (!enter_help) { break; };
     case "?":
     case "/":
     case "F1":
@@ -250,8 +244,7 @@ function keydown_handler(event) {
 };
 
 function keypress_handler(event) {
-  if (event.key == "Enter") { return; }; // handled by enter_pressed_once
-  if (["?"," "].includes(event.key)) { window.mad_keypress = 0 }
+  if (["?"," ", "Enter"].includes(event.key)) { window.mad_keypress = 0 }
   else {
     if (window.mad_keypress) {
       window.onkeypress = null; // i.e. mad help is only shown once
