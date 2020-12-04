@@ -44,15 +44,15 @@
   position: fixed;
   left: 0;
   top: 5%;
-  bottom: 10%;
-  height: 75%;
+  height: 80%;
   width: 100%; /* Full width */
 }
 
 /* Modal Content */
 .modal-content {
   z-index: 1;
-  width: 80%;
+  width: max-content;
+  max-width: 85%;
   max-height: 100%;
   box-shadow: 0px 0px 10px 5px #ffffff60;
   color: #fff;
@@ -64,7 +64,7 @@
 }
 </style>
 <script type="text/javascript">
-const helpText = `Press '?' key or F1 to toggle help
+const helpText = `Press '?' key or F1 or Enter to toggle help
 
 Start/Pause  Primary (left) click     <Space> key
 Reset        Secondary (right) click  <Backspace> key
@@ -76,37 +76,40 @@ Press F11 to toggle Fullscreen mode
 Configuration
 =============
 Before continuing, add a '?' at the end of the URL, so that it now looks like this -
-  ${document.location.origin}${document.location.pathname}?
+    ${document.location.origin}${document.location.pathname}?
 
 Work duration
 -------------
 Add the following text at the end of the URL and replace 25 with your choice of minutes -
-  &work=25
+    &work=25
 
 Break duration
 -------------
 Add the following text at the end of the URL and replace 5 with your choice of minutes -
-  &break=5
+    &break=5
 
 Auto-start
 ----------
 If you want the work timer to start automatically, then add the following text -
-  &autostart=true
+    &autostart=true
 
 Auto-break
 ----------
 If you want the break timer to start automatically, then add the following text -
-  &autobreak=true
+    &autobreak=true
 
-Keep in mind that the value of &autobreak is set to that of &autostart by default. So, if you have set &autostart=true, it automatically implies &autobreak=true. In that case, if you want to disable auto-break, you need the set the following -
-  &autobreak=false
+Keep in mind that the value of &autobreak is set to that of &autostart by default. So,
+if you have already set &autostart=true, it automatically implies &autobreak=true.
+
+If you want to disable auto-break, you need the set the following -
+    &autobreak=false
 
 NOTE: The case of "true" and "false" is important. It should match exactly. Anything else is ignored.
 
 Help on Enter
 ------------------
 By default, help is toggled when Enter is pressed. To disable this, add the following to the URL -
-  &enterhelp=false
+    &enterhelp=false
 `
 function secondsToTime(secs) {
   var hours = Math.floor(secs / (60 * 60));
@@ -255,7 +258,7 @@ function keypress_handler(event) {
 };
 
 function toggle_help() { document.getElementById("help-modal").style.display = document.getElementById("help-modal").style.display != "block" ? "block" : "none"; };
-function user_needs_help() { alert("Press '?' or F1 to toggle help"); };
+function user_needs_help() { alert("Press '?' or F1 or Enter to toggle help"); };
 
 function main_loop() {
   if (window.running) {
@@ -289,7 +292,50 @@ window.onkeypress = keypress_handler;
 
   <!-- Modal content -->
   <div class="modal-content">
-    <code id="helpText">
+    <code id="helpText" style="white-space:pre-wrap;">
+Press '?' key or F1 to toggle help
+
+Start/Pause  Primary (left) click       <Space> key
+Reset        Secondary (right) click    <Backspace> key
+Skip         Secondary (right) click    <Escape> key
+
+Press F11 to toggle Fullscreen mode
+
+
+Configuration
+=============
+Before continuing, add a '?' at the end of the URL, so that it now looks like this -
+    http://localhost:8080/?
+
+Work duration
+-------------
+Add the following text at the end of the URL and replace 25 with your choice of minutes -
+    &work=25
+
+Break duration
+-------------
+Add the following text at the end of the URL and replace 5 with your choice of minutes -
+    &break=5
+
+Auto-start
+----------
+If you want the work timer to start automatically, then add the following text -
+    &autostart=true
+
+Auto-break
+----------
+If you want the break timer to start automatically, then add the following text -
+    &autobreak=true
+
+Keep in mind that the value of &autobreak is set to that of &autostart by default. So, if you have set &autostart=true, it automatically implies &autobreak=true. In that case, if you want to disable auto-break, you need the set the following -
+	&autobreak=false
+
+NOTE: The case of "true" and "false" is important. It should match exactly. Anything else is ignored.
+
+Help on Enter
+------------------
+By default, help is toggled when Enter is pressed. To disable this, add the following to the URL -
+	&enterhelp=false
     </code>
   </div>
 
