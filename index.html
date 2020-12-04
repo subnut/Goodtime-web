@@ -56,23 +56,22 @@ var running;
 function update_timer() {
   var time_now = new Date().getTime()
   if (end_milliseconds == 0) {
-    window.end_milliseconds = time_now + target_milliseconds + 1000;
+    window.end_milliseconds = time_now + target_milliseconds;
   }
   var now_milliseconds = time_now
   var diff_milliseconds = end_milliseconds - now_milliseconds;
   var diff_seconds = Math.floor(diff_milliseconds / 1000);
   if (diff_seconds > 0) {
-    diff_seconds = diff_seconds < window.target_seconds ? diff_seconds : window.target_seconds;
     var new_time_text = secondsToTime(diff_seconds);
     document.getElementById("time").innerHTML = new_time_text;
-    return 1000 - new Date().getMilliseconds()
+    return 1000 - new Date().getMilliseconds();
   } else {
     document.getElementById("time").innerHTML = "00:00";
     window.running = false;
-    window.session++
+    window.session++;
     window.session %= 2
-    update_target()
-    return 1000
+    update_target();
+    return 1000;
   }
 }
 
@@ -90,23 +89,25 @@ function timer_start() {
   window.running = true;
   main_loop()
 }
-function timer_pause() {
+function timer_toggle_pause() {
   if (window.running) {
     window.running = false;
     window.target_milliseconds = window.end_milliseconds - new Date().getTime();
-    window.end_milliseconds = 0
+    window.end_milliseconds = 0;
+  } else {
+    timer_start();
   }
 }
 function timer_reset() {
   window.running = false;
-  update_target()
-  document.getElementById("time").innerHTML = secondsToTime(window.target_seconds)
-  window.end_milliseconds = 0
+  update_target();
+  document.getElementById("time").innerHTML = secondsToTime(window.target_seconds);
+  window.end_milliseconds = 0;
 }
 function timer_skip() {
-  window.session++
-  window.session %= 2
-  timer_reset()
+  window.session++;
+  window.session %= 2;
+  timer_reset();
 }
 
 function main_loop() {
@@ -116,12 +117,43 @@ function main_loop() {
 }
 
 function init() {
-  update_target()
-  timer_start()
+  update_target();
+  // timer_start();
 }
 
+function mouse_handler(event) {
+  switch (event.button) {
+    case 0:
+      timer_toggle_pause();
+      break;
+    case 1:
+      timer_reset();
+      break;
+    case 2:
+      timer_skip();
+      break;
+  }
+}
+
+function keypress_handler(event) {
+  switch (event.key) {
+    case " ":
+      timer_toggle_pause();
+      break;
+    case "Backspace":
+      timer_reset();
+      break;
+    case "Escape":
+      timer_skip();
+      break;
+  }
+}
+
+
 window.onload = init;
-window.onclick = timer_pause;
+window.onmousedown = mouse_handler;
+window.onkeydown = keypress_handler;
+document.oncontextmenu = function() {return false;} // disable right click context menu
 </script>
 
 </head>
