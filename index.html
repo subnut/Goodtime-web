@@ -49,8 +49,9 @@ function secondsToTime(secs) {
 
 // Parse args
 for (const entry of new URLSearchParams(window.location.search).entries()){
- console.log(`${entry[0]}: ${entry[1]}`);
- eval(`window.${entry[0]} = ${entry[1]}`);
+    console.log(`${entry[0]}: ${entry[1]}`);
+    try{ eval(`window.${entry[0]} = ${entry[1]}`); }
+    catch { eval(`window.${entry[0]} = "${entry[1]}"`); }
 }
 
 // set defaults if unset
