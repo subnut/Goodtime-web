@@ -37,13 +37,38 @@
   .breakmode {
     color: #fff8;
   }
+
+/* popup */
+.modal {
+  display: none;
+  position: fixed;
+  left: 0;
+  top: 5%;
+  bottom: 10%;
+  height: 75%;
+  width: 100%; /* Full width */
+}
+
+/* Modal Content */
+.modal-content {
+  z-index: 1;
+  width: 80%;
+  max-height: 100%;
+  box-shadow: 0px 0px 10px 5px #ffffff60;
+  color: #fff;
+  background-color: #000;
+  margin: auto;
+  padding: 1.5em;
+  font-size: 2em;
+  overflow: auto; /* Enable scroll if needed */
+}
 </style>
 <script type="text/javascript">
-const helpText = `For help press '?' key or F1
+const helpText = `Press '?' key or F1 to toggle help
 
-Start/Pause	Primary (left) click		<Space> key
-Reset		Secondary (right) click	<Backspace> key
-Skip		Secondary (right) click	<Escape> key
+Start/Pause  Primary (left) click     <Space> key
+Reset        Secondary (right) click  <Backspace> key
+Skip         Secondary (right) click  <Escape> key
 
 Press F11 to toggle Fullscreen mode
 
@@ -51,44 +76,38 @@ Press F11 to toggle Fullscreen mode
 Configuration
 =============
 Before continuing, add a '?' at the end of the URL, so that it now looks like this -
-	${document.location.origin}${document.location.pathname}?
+  ${document.location.origin}${document.location.pathname}?
 
 Work duration
 -------------
 Add the following text at the end of the URL and replace 25 with your choice of minutes -
-	&work=25
+  &work=25
 
 Break duration
 -------------
 Add the following text at the end of the URL and replace 5 with your choice of minutes -
-	&work=5
+  &work=5
 
 Auto-start
 ----------
 If you want the work timer to start automatically, then add the following text -
-	&autostart=true
+  &autostart=true
 
 Auto-break
 ----------
 If you want the break timer to start automatically, then add the following text -
-	&autobreak=true
+  &autobreak=true
 
 Keep in mind that the value of &autobreak is set to that of &autostart by default. So, if you have set &autostart=true, it automatically implies &autobreak=true. In that case, if you want to disable auto-break, you need the set the following -
- 	&autobreak=false
+  &autobreak=false
 
 NOTE: The case of "true" and "false" is important. It should match exactly. Anything else is ignored.
 
 Help on two Enters
 ------------------
-By default, help is shown when Enter is pressed twice. To disable this, add the following to the URL -
-	&enterhelp=false
+By default, help to toggle help is shown when Enter is pressed twice. To disable this, add the following to the URL -
+  &enterhelp=false
 `
-
-function help() {
-  alert(helpText);
-}
-
-
 function secondsToTime(secs) {
   var hours = Math.floor(secs / (60 * 60));
   hours = hours < 10 ? '0' + hours : hours;
@@ -140,8 +159,8 @@ function update_timer() {
     update_target_variables();
     update_timer_color();
     return 1000;
-  }
-}
+  };
+};
 
 function update_timer_color() {
   if (window.session) {
@@ -149,7 +168,7 @@ function update_timer_color() {
   } else {
     document.getElementById("timer").classList.remove("breakmode");
   };
-}
+};
 
 function update_target_variables() {
   if (window.session) {
@@ -159,12 +178,12 @@ function update_target_variables() {
   }
   window.target_seconds = window.target_minutes * 60;
   window.target_milliseconds = window.target_seconds * 1000;
-}
+};
 
 function timer_start() {
   window.running = true;
-  main_loop()
-}
+  main_loop();
+};
 function timer_toggle_pause() {
   if (window.running) {
     window.running = false;
@@ -172,14 +191,14 @@ function timer_toggle_pause() {
     window.end_milliseconds = 0;
   } else {
     timer_start();
-  }
-}
+  };
+};
 function timer_reset() {
   window.running = false;
   update_target_variables();
   document.getElementById("time").innerHTML = secondsToTime(window.target_seconds);
   window.end_milliseconds = 0;
-}
+};
 function timer_skip() {
   window.session++;
   window.session %= 2;
@@ -188,21 +207,7 @@ function timer_skip() {
   update_timer_color();
   if (wasRunning && (window.session && window.auto_break || window.auto_start))
       timer_start()
-}
-
-function main_loop() {
-  if (window.running) {
-    setTimeout(main_loop, update_timer());
-  }
-}
-
-function init() {
-  update_target_variables();
-  document.getElementById("time").innerHTML = secondsToTime(target_seconds);
-  if (window.auto_start) {
-    timer_start();
-  };
-}
+};
 
 function mouse_handler(event) {
   switch (event.button) {
@@ -215,8 +220,8 @@ function mouse_handler(event) {
     case 1: // auxillary (middle) button
       timer_skip();
       break;
-  }
-}
+  };
+};
 
 function keydown_handler(event) {
   switch (event.key) {
@@ -229,21 +234,20 @@ function keydown_handler(event) {
     case "Escape":
       timer_skip();
       break;
-    // case "Enter":
-    //   if (document.fullscreenElement != null) { document.exitFullscreen();}
-    //   else { if (document.fullscreenEnabled) { document.documentElement.requestFullscreen();}; };
-    //   break;
     case "Enter":
       window.enter_pressed_once++;
       window.enter_pressed_once %= 2;
       if (window.enter_pressed_once) { break; };
       if (!enter_help) { break; }
+      user_needs_help();
+      break;
     case "?":
+    case "/":
     case "F1":
-      help();
-      break
-  }
-}
+      toggle_help();
+      break;
+  };
+};
 
 function keypress_handler(event) {
   if (event.key == "Enter") { return; }; // handled by enter_pressed_once
@@ -251,26 +255,52 @@ function keypress_handler(event) {
   else {
     if (window.mad_keypress) {
       window.onkeypress = null; // i.e. mad help is only shown once
-      help();
+      user_needs_help();
     };
     window.mad_keypress++;
   };
 };
 
+function toggle_help() { document.getElementById("help-modal").style.display = document.getElementById("help-modal").style.display != "block" ? "block" : "none"; };
+function user_needs_help() { alert("Press '?' or F1 to toggle help"); };
+
+function main_loop() {
+  if (window.running) {
+    setTimeout(main_loop, update_timer());
+  }
+}
+
+function init() {
+  update_target_variables();
+  document.getElementById("time").innerHTML = secondsToTime(target_seconds);
+  if (window.auto_start) { timer_start(); };
+  document.getElementById("helpText").innerText = helpText;
+  document.getElementById("container").onmousedown = mouse_handler;
+  document.getElementById("container").oncontextmenu = function() { return false; } // disable right click context menu in timer
+}
+
 window.onload = init;
-window.onmousedown = mouse_handler;
 window.onkeydown = keydown_handler;
 window.onkeypress = keypress_handler;
-document.oncontextmenu = function() {return false;} // disable right click context menu
+// document.oncontextmenu = function() { return false; } // disable right click context menu in window
 </script>
 
 </head>
 <body>
-  <div class="container">
+  <div class="container" id="container">
     <div class="timer" id="timer">
         <span id="time"></span>
     </div>
   </div>
+   <div id="help-modal" class="modal">
+
+  <!-- Modal content -->
+  <div class="modal-content">
+    <code id="helpText">
+    </code>
+  </div>
+
+ </div>
 </body>
 </html>
 
