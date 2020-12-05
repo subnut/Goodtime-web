@@ -191,7 +191,6 @@ function update_target_variables() {
 };
 
 function timer_start() {
-  update_target_variables();
   update_timer_color();
   window.running = true;
   main_loop();
@@ -295,22 +294,29 @@ function init() {
 
   // Check if our custom ttf is available.
   ttfCheckRequest = new XMLHttpRequest();
-  ttfCheckRequest.open("HEAD","RobotoMono-Thin-extra_gylphs_removed.ttf", false);
-  if (ttfCheckRequest.readyState == 1) {ttfCheckRequest.send();};
-  if (ttfCheckRequest.status != 200) {
-    // TTf N/A. Use google's stylesheet.
+  try {
+    ttfCheckRequest.open("HEAD","RobotoMono-Thin-extra_gylphs_removed.ttf", false);
+    if (ttfCheckRequest.readyState == 1) {ttfCheckRequest.send();};
+  } catch(DOMException) {
+      // Blocked by CORS policy (ie. script running from local storage)
+      // i.e. user probably just 'curl'ed or downloaded only the script
+      ttfCheckRequest.status = 0; // dummy to make (_ != 200) as true
+  } finally {
+    if (ttfCheckRequest.status != 200) {
+      // TTf N/A. Use google's stylesheet.
 
-    var headID = document.getElementsByTagName('head')[0];
-    var link1 = document.createElement('link');
-    var link2 = document.createElement('link');
+      var headID = document.getElementsByTagName('head')[0];
+      var link1 = document.createElement('link');
+      var link2 = document.createElement('link');
 
-    link1.rel = 'preconnect';
-    link1.href = 'https://fonts.gstatic.com';
-    link2.rel = 'stylesheet';
-    link2.href = 'https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@100&display=swap';
+      link1.rel = 'preconnect';
+      link1.href = 'https://fonts.gstatic.com';
+      link2.rel = 'stylesheet';
+      link2.href = 'https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@100&display=swap';
 
-    headID.appendChild(link1);
-    headID.appendChild(link2);
+      headID.appendChild(link1);
+      headID.appendChild(link2);
+    };
   };
 };
 
