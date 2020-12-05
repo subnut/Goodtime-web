@@ -162,12 +162,11 @@ function update_timer() {
     window.session %= 2;
     window.end_milliseconds = 0;
     update_target_variables();
+    update_timer_color();
+    document.getElementById("time").innerHTML = secondsToTime(window.target_seconds);
     if (!window.auto_break) {
-      document.getElementById("time").innerHTML = "00:00";
       window.running = false;
       return;
-    } else {
-      update_timer_color();
     };
   };
 };
