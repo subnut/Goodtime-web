@@ -89,6 +89,16 @@ Break duration
 Add the following text at the end of the URL and replace 5 with your choice of minutes -
     &break=5
 
+
+NOTE: The case of "true" and "false" is important. It should match exactly.
+      Anything else is ignored.
+
+Screen awake
+------------
+By default, the screen is kept awake while the timer is running.
+To disable this, add the following to the end of the URL -
+    &screenawake=false
+
 Auto-start
 ----------
 If you want the work timer to start automatically, then add the following text -
@@ -105,7 +115,6 @@ if you have already set &autostart=true, it automatically implies &autobreak=tru
 If you want to disable auto-break, you need the set the following -
     &autobreak=false
 
-NOTE: The case of "true" and "false" is important. It should match exactly. Anything else is ignored.
 
 Help on Enter
 ------------------
@@ -137,6 +146,7 @@ var duration_break = (typeof(window.break) == "number") ? window.break : 5;
 var auto_start = (typeof(window.autostart) == "boolean") ? window.autostart : false;
 var auto_break = (typeof(window.autobreak) == "boolean") ? window.autobreak : auto_start;
 var enter_help = (typeof(window.enterhelp) == "boolean") ? window.enterhelp : true;
+var screen_awake = (typeof(window.screenawake) == "boolean") ? window.screenawake : true;
 
 // working variables
 var session = 0;
@@ -193,13 +203,15 @@ function timer_start() {
   update_timer_color();
   window.running = true;
   main_loop();
-  document.getElementById("blankVideo").load();
-  document.getElementById("blankVideo").play();
+  if (window.screen_awake) {
+    document.getElementById("blankVideo").load();
+    document.getElementById("blankVideo").play();
+  };
 };
 function timer_toggle_pause() {
   if (window.running) {
     window.running = false;
-    document.getElementById("blankVideo").pause();
+    if (window.screen_awake) { document.getElementById("blankVideo").pause(); };
     window.target_milliseconds = window.end_milliseconds - new Date().getTime();
     window.end_milliseconds = 0;
   } else {
@@ -208,7 +220,7 @@ function timer_toggle_pause() {
 };
 function timer_reset() {
   window.running = false;
-  document.getElementById("blankVideo").pause();
+  if (window.screen_awake) { document.getElementById("blankVideo").pause(); };
   update_target_variables();
   document.getElementById("time").innerHTML = secondsToTime(window.target_seconds);
   window.end_milliseconds = 0;
@@ -327,7 +339,7 @@ window.onkeypress = keypress_handler;
 
 </head>
 <body>
-<video id="blankVideo" width="0" height="0" autoplay loop muted>
+<video id="blankVideo" width="0" height="0" loop muted>
   <source src="blank.mp4" type="video/mp4" />
 </video>
   <div class="container" id="container">
