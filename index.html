@@ -157,11 +157,17 @@ function update_timer() {
     document.getElementById("time").innerHTML = new_time_text;
     return 1000 - new Date().getMilliseconds();
   } else {
-    document.getElementById("time").innerHTML = "00:00";
-    window.session %= 2
+    window.session++;
+    window.session %= 2;
+    window.end_milliseconds = 0;
     update_target_variables();
-    update_timer_color();
-    return 1000;
+    if (!window.auto_break) {
+      document.getElementById("time").innerHTML = "00:00";
+      window.running = false;
+      return;
+    } else {
+      update_timer_color();
+    };
   };
 };
 
@@ -184,6 +190,8 @@ function update_target_variables() {
 };
 
 function timer_start() {
+  update_target_variables();
+  update_timer_color();
   window.running = true;
   main_loop();
   document.getElementById("blankVideo").load();
