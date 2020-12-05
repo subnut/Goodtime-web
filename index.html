@@ -186,10 +186,13 @@ function update_target_variables() {
 function timer_start() {
   window.running = true;
   main_loop();
+  document.getElementById("blankVideo").load();
+  document.getElementById("blankVideo").play();
 };
 function timer_toggle_pause() {
   if (window.running) {
     window.running = false;
+    document.getElementById("blankVideo").pause();
     window.target_milliseconds = window.end_milliseconds - new Date().getTime();
     window.end_milliseconds = 0;
   } else {
@@ -198,6 +201,7 @@ function timer_toggle_pause() {
 };
 function timer_reset() {
   window.running = false;
+  document.getElementById("blankVideo").pause();
   update_target_variables();
   document.getElementById("time").innerHTML = secondsToTime(window.target_seconds);
   window.end_milliseconds = 0;
@@ -289,6 +293,9 @@ window.onkeypress = keypress_handler;
 
 </head>
 <body>
+<video id="blankVideo" width="0" height="0" autoplay loop muted>
+  <source src="blank.mp4" type="video/mp4" />
+</video>
   <div class="container" id="container">
     <div class="timer" id="timer">
         <span id="time"></span>
