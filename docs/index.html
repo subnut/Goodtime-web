@@ -1,7 +1,7 @@
 <html>
 <head>
-<link rel="preconnect" href="https://fonts.gstatic.com">
-<link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@100&display=swap" rel="stylesheet">
+<!-- <link rel="preconnect" href="https://fonts.gstatic.com"> -->
+<!-- <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@100&display=swap" rel="stylesheet"> -->
 <title>
     GoodTime Web
 </title>
@@ -63,6 +63,7 @@
   overflow: auto; /* Enable scroll if needed */
 }
 </style>
+
 <script type="text/javascript">
 const helpText = `Press '?' key or F1 or Enter to toggle help
 
@@ -291,7 +292,27 @@ function init() {
   document.getElementById("helpText").innerText = helpText;
   document.getElementById("container").onmousedown = mouse_handler;
   document.getElementById("container").oncontextmenu = function() { return false; } // disable right click context menu in timer
-}
+
+  // Check if our custom ttf is available.
+  ttfCheckRequest = new XMLHttpRequest();
+  ttfCheckRequest.open("HEAD","RobotoMono-Thin-extra_gylphs_removed.ttf", false);
+  if (ttfCheckRequest.readyState == 1) {ttfCheckRequest.send();};
+  if (ttfCheckRequest.status != 200) {
+    // TTf N/A. Use google's stylesheet.
+
+    var headID = document.getElementsByTagName('head')[0];
+    var link1 = document.createElement('link');
+    var link2 = document.createElement('link');
+
+    link1.rel = 'preconnect';
+    link1.href = 'https://fonts.gstatic.com';
+    link2.rel = 'stylesheet';
+    link2.href = 'https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@100&display=swap';
+
+    headID.appendChild(link1);
+    headID.appendChild(link2);
+  };
+};
 
 window.onload = init;
 window.onkeydown = keydown_handler;
