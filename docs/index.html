@@ -21,9 +21,12 @@
     width: 100%;
     height: 100%;
     display: flex;
-    cursor: none;
     justify-content: center;
     align-items: center;
+  }
+
+  .timer-container, .container.timer-container {
+    cursor: none;
   }
 
   .timer {
@@ -38,30 +41,24 @@
     color: #fff8;
   }
 
-/* popup */
-.modal {
-  display: none;
-  position: fixed;
-  left: 0;
-  top: 5%;
-  height: 80%;
-  width: 100%; /* Full width */
-}
+  .help-popup {
+    z-index: 1;
+    width: max-content;
+    max-width: 85%;
+    max-height: 80%;
+    box-shadow: 0px 0px 10px 5px #ffffff60;
+    color: #fff;
+    background-color: #000;
+    margin: auto;
+    padding: 1.5em;
+    font-size: 2em;
+    overflow: auto; /* Enable scroll if needed */
+  }
 
-/* Modal Content */
-.modal-content {
-  z-index: 1;
-  width: max-content;
-  max-width: 85%;
-  max-height: 100%;
-  box-shadow: 0px 0px 10px 5px #ffffff60;
-  color: #fff;
-  background-color: #000;
-  margin: auto;
-  padding: 1.5em;
-  font-size: 2em;
-  overflow: auto; /* Enable scroll if needed */
-}
+  /* Place it at last to ensure highest precedence */
+  .hidden, .timer.hidden, .help-popup.hidden {
+    display: none;
+  }
 </style>
 
 <script type="text/javascript">
@@ -286,9 +283,13 @@ function keypress_handler(event) {
   };
 };
 
-function toggle_help() { document.getElementById("help-modal").style.display = document.getElementById("help-modal").style.display != "block" ? "block" : "none"; };
+function toggle_help() {
+    document.getElementById("help-popup").classList.toggle("hidden");
+    document.getElementById("timer").classList.toggle("hidden");
+    document.getElementById("container").classList.toggle("timer-container");
+  };
 function user_needs_help() { alert("Press '?' or F1 or Enter to toggle help"); };
-function help_opened() { return document.getElementById("help-modal").style.display == "block"; };
+function help_opened() { return document.getElementById("help-popup").style.display == "block"; };
 
 function main_loop() {
   if (window.running) {
@@ -343,19 +344,14 @@ window.onkeypress = keypress_handler;
 <video id="blankVideo" width="0" height="0" loop muted>
   <source src="blank.mp4" type="video/mp4" />
 </video>
-  <div class="container" id="container">
+  <div class="container timer-container" id="container">
     <div class="timer" id="timer">
         <span id="time"></span>
     </div>
-  </div>
-   <div id="help-modal" class="modal">
-
-  <!-- Modal content -->
-  <div class="modal-content">
-    <code id="helpText" style="white-space:pre-wrap;">
-    </code>
-  </div>
-
+    <div class="help-popup hidden" id="help-popup">
+      <code id="helpText" style="white-space:pre-wrap;">
+      </code>
+    </div>
  </div>
 </body>
 </html>
