@@ -289,7 +289,7 @@ function toggle_help() {
     document.getElementById("container").classList.toggle("timer-container");
   };
 function user_needs_help() { alert("Press '?' or F1 or Enter to toggle help"); };
-function help_opened() { return document.getElementById("help-popup").style.display == "block"; };
+function help_opened() { return !document.getElementById("help-popup").classList.contains("hidden"); };
 
 function main_loop() {
   if (window.running) {
